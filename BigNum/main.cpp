@@ -7,9 +7,9 @@ void report_error(const BigInt&i);
 int main() {
 	BigInt
 		i(10),
-		j(100000000000000);
+		j(10);
 	i = hyper(4, i, 3);
-	//j = hyper(4, j, 2);
+	j = hyper(4, j, 2);
 	for (int l = 0; l < 12; l++) {
 		cout << i.getNumDec().c_str() << "/" << j.getNumDec().c_str() << endl;
 		i /= j;

@@ -49,27 +49,25 @@ namespace BigNum {
 	}
 	BigInt&BigInt::sub(const BigInt&rhs) {
 		ltype buffer = 0;
-		for (unsigned int i = 0; i < rhs.value.size(); i++) {
-			buffer += rhs.value[i];
-			for (unsigned int j = i; buffer; j++) {
-				if (value.size() > j)goto sub;
+		bool b;
+		for (unsigned int i = 0; (b = i < rhs.value.size()) || buffer; i++) {
+			if (b)
+				buffer += rhs.value[i];
+			if (buffer) {
+				if (value.size() > i)goto sub;
 				errors.push_back(Error::fatal::invalid_function_call);
 				return*this;
 			sub:
+				
 				//buffer += _UI32_MAX  -  value[j];
-				if (HIPART(type, buffer))
+				if (HIPART(type, buffer))//if an integer overflow occured last interval add
 					buffer++;
-				if (value[j] >= LOPART(type,buffer)) {
-					value[j] -= LOPART(type, buffer);
-					buffer = 0;
-				}
-				//8590000000
-				else {
-					value[j] -= LOPART(type, buffer);
-					
-					LOPART(type, buffer) = 0;
-					HIPART(type, buffer) = 1;
-				}
+				bool a = value[i] < LOPART(type,buffer);//if an integer overflow is going to occure
+
+				value[i] -= LOPART(type, buffer);
+				
+				LOPART(type, buffer) = 0;
+				HIPART(type, buffer) = a;
 			}
 		}
 		clear_back();
@@ -100,31 +98,40 @@ namespace BigNum {
 		buffer.positiv=buffer2.positiv = 1;
 		setZero();
 
-		if (rhs > buffer) { goto endloop; }
 		if (rhs == 0) { errors.push_back(Error::fatal::division_by_zero); return*this; }
 
 		
 		type i,j;
-	loop:
-		j = 0;
-		b = 0;
-		i = buffer.value.size() - 1 - (buffer.value.back() < buffer2.value.back());
-		b.add(buffer2, i);
-		while (b*++j < buffer);
-		//j = max(buffer.value[i] / b.value[i], 1);
+		while (buffer>buffer2) {
 
-		b *= --j;
-		
-		
-		buffer.sub(b);
-		
-		this[0].add(j, i);
-		
+			b = 0;
+			size_t l = buffer2.value.size();
+			i = buffer.value.size() - l - (buffer.value.back() < buffer2.value.back());
+			b.add(buffer2, i);
+			l--;
+			j = /*/1;/*/buffer.value[i+l] / b.value[i+l];
+
+			while (b*j > buffer)
+				j /= 2;
+			if (j)
+				b *= j;
+			else
+				j = 1;
+			//*/
+			if (b > buffer) {
+				i--;
+				b = 0;
+				b.add(buffer2, i);
+				while (b*j <= buffer&&j<0x80000000)
+					j *= 2;
+				b *= j /= 2;
+			}
+			buffer.sub(b);
+			this[0].add(j, i);
 
 
-		if (buffer < buffer2)goto endloop;
-		if (i > 0 || j > 1)goto loop;
-	endloop:
+			if (buffer < buffer2)break;
+		}
 		if (buffer != 0)
 			errors.push_back(Error::nonfatal::integer_division_accuracy_loss);
 
