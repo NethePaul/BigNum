@@ -60,7 +60,7 @@ namespace BigNum {
 		BigInt&add(const BigInt&,unsigned int P = 0);//addition
 		BigInt&sub(const BigInt&);//subtraction
 		BigInt&mul(const BigInt&);//multiplication
-		BigInt&div(const BigInt&);//division
+		BigInt&div(const BigInt&, BigInt*rest= 0);//division
 		BigInt&incr();//increment;
 		BigInt&decr();//decrement
 
@@ -134,6 +134,22 @@ namespace BigNum {
 			} while (!all_zero());
 			if (!positiv)num.insert(num.begin(), '-');
 			return num;
+		}
+		std::string getNumHex() {
+			std::string buffer;
+			for(unsigned int j=value.size();j--;)
+				for (unsigned int i = sizeof(type) * 2; i--;) {
+					type buffer2 = value[j];
+					buffer2 = buffer2&(0xF << i * 4);
+					buffer.push_back(Hex_from_4Bit(buffer2>>i*4));
+				}
+			return buffer;
+		}
+	private:
+		char Hex_from_4Bit(unsigned short in){
+			in %= 16;
+			if (in < 10)return '0' + in;
+			return 'A' + in - 10;
 		}
 	public:
 		//*
@@ -210,7 +226,7 @@ namespace BigNum {
 		}
 		BigInt&operator*=(const BigInt&rhs) {
 			stdVector::merge(errors, rhs.errors);
-			positiv = positiv^rhs.positiv;
+			positiv = !(positiv^rhs.positiv);
 			return mul(rhs);
 		}
 		BigInt&operator/=(const BigInt&rhs) {
@@ -227,7 +243,23 @@ namespace BigNum {
 			
 			return*this;
 		}
+		BigInt&operator%=(const BigInt&rhs){
+			stdVector::merge(errors, rhs.errors);
+			bool buffer = positiv;
 
+			mod(rhs);
+			if (this[0] == 0)
+			{
+				setZero();
+				return*this;
+			}
+			positiv = !(buffer^rhs.positiv);
+			return*this;
+		}
+		BigInt operator%(const BigInt&rhs)const {
+			auto buffer = *this;
+			return buffer%rhs;
+		}
 
 		BigInt operator+(const BigInt&rhs)const {
 			auto buffer = this[0];

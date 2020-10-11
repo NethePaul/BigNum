@@ -82,16 +82,16 @@ namespace BigNum {
 		for (unsigned int i = 0; i < value.size() + rhs.value.size(); i++)
 			buffer.value.push_back(0);
 
-		for (unsigned int i = 0; i < rhs.value.size(); i++) {
-			for (unsigned int j = 0; j < value.size(); j++) {
+		for (unsigned int i = rhs.value.size(); i--;) {
+			for (unsigned int j = value.size();j--;) {
 				buffer2 = (ltype)value[j] * (ltype)rhs.value[i];
-				buffer.add(buffer2, j + i);
+				buffer.add(BigInt(buffer2,false), j + i);
 			}
 		}
 		buffer.clear_back();
 		return*this = buffer;
 	}
-	BigInt&BigInt::div(const BigInt&rhs) {
+	BigInt&BigInt::div(const BigInt&rhs, BigInt*rest) {
 		BigInt buffer = *this;
 		BigInt buffer2 = rhs;
 		BigInt b = buffer2;
@@ -136,10 +136,17 @@ namespace BigNum {
 
 			if (buffer < buffer2)break;
 		}
-		if (buffer != 0)
+		if (rest)
+			*rest = buffer;
+		else if (buffer != 0)
 			errors.push_back(Error::nonfatal::integer_division_accuracy_loss);
 
 		return*this;
+	}
+	BigInt&BigInt::mod(const BigInt&rhs){
+		BigInt buffer = *this;
+		buffer.div(rhs,this);
+		return *this;
 	}
 
 #undef c
