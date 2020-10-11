@@ -111,8 +111,12 @@ namespace BigNum {
 			l--;
 			j = /*/1;/*/buffer.value[i+l] / b.value[i+l];
 
-			while (b*j > buffer)
-				j /= 2;
+			if (b*j > buffer) {
+				if (buffer2.value[l - 1]) {
+					j = buffer.value[i + l] / (b.value[i + l] + 1);
+				}
+				else j--;
+			}
 			if (j)
 				b *= j;
 			else
