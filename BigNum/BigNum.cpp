@@ -171,7 +171,7 @@ namespace BigNum {
 		for (unsigned int i = 0; i < value.size(); i++)
 			if (value[i])
 				value[i]--;
-		while (!value.back())value.pop_back();//0x00000000F -> 0xF
+		while (value.size()&&!value.back())value.pop_back();//0x00000000F -> 0xF
 		if (!value.size()) {
 			positiv = 1;
 			value.push_back(0);
@@ -238,7 +238,29 @@ namespace BigNum {
 			c = hyper(l - 1, c, a);
 		return c;
 	}
-
-
+	BigInt pow(const BigInt&x, const BigInt&y) {
+		auto buffer = x;
+		auto buffery = y;
+		if (y == 0)return 1;
+		if (x == 0)return 0;
+		while (true) {
+			BigInt buffer2 = 2;
+			BigInt buffer3 = 2;
+			if (buffer2 < buffery) {
+				do {
+					buffer2 = buffer3;
+					buffer *= buffer;
+					buffer3 = buffer2*buffer2;
+				} while (buffer3 < buffery);
+				buffery -= buffer2;
+			}
+			if (buffer2 == 2)break;
+		}
+		for (BigInt i = buffery; i--!=0;){// I would have overloaded the ".operator bool" but it caused syntax errors
+			buffer *= x;
+			buffery--;
+		}
+		return buffer;
+	}
 	
 }

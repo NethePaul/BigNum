@@ -71,7 +71,6 @@ namespace BigNum {
 	public:
 		friend BigInt hyper(unsigned int l, BigInt a, BigInt b);//hyper operator //ackerman function
 		
-
 	public:
 		bool operator>(const BigInt&)const;
 		bool operator>=(const BigInt&)const;
@@ -85,9 +84,10 @@ namespace BigNum {
 
 
 	public:
-		friend BigInt power(const BigInt&x,const BigInt&y);//power x^y
+		friend BigInt pow(const BigInt&x,const BigInt&y);//power x^y
 		friend BigInt root(const BigInt&x, const BigInt&y);//root yth root of x
 		friend BigInt log(const BigInt&x, const BigInt&y);//logarithm log of x to the base of y
+
 
 		friend class BigFloat;
 	public:
@@ -278,13 +278,17 @@ namespace BigNum {
 			return buffer /= rhs;
 		}
 
-		BigInt&operator++(int) {
-			if (positiv)return incr();
-			return decr();
+		BigInt operator++(int) {
+			auto r = *this;
+			if (positiv)incr();
+			else decr();
+			return r;
 		}
-		BigInt&operator--(int) {
-			if (positiv)return decr();
-			return incr();
+		BigInt operator--(int) {
+			auto r = *this;
+			if (positiv)decr();
+			else incr();
+			return r;
 		}
 	};
 }

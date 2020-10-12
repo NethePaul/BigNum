@@ -5,7 +5,11 @@ using namespace BigNum;
 using namespace std;
 void report_error(const BigInt&i);
 int main() {
-
+	BigInt var1 = 10;
+	for (int i = 0; i < 11; i++) {
+		std::cout << var1.getNumDec() << std::endl;
+		var1 = pow(var1,3);
+	}
 	cin.get();
 }
 
