@@ -5,10 +5,17 @@ using namespace BigNum;
 using namespace std;
 void report_error(const BigInt&i);
 int main() {
-	BigInt var1 = 10;
-	for (int i = 0; i < 11; i++) {
-		std::cout << var1.getNumDec() << std::endl;
-		var1 = pow(var1,3);
+	BigInt var1 = 33; std::cout << var1.getNumHex() << std::endl;
+	for (int i = 0; i < 16; i++) {
+		
+		var1 <<= 4;
+		std::cout << var1.getNumHex() << std::endl;
+		report_error(var1);
+	}
+	for (int i = 0; i < 16; i++) {
+		var1 >>= 4;
+		std::cout << var1.getNumHex() << std::endl;
+		report_error(var1);
 	}
 	cin.get();
 }

@@ -262,5 +262,4 @@ namespace BigNum {
 		}
 		return buffer;
 	}
-	
 }

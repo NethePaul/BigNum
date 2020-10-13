@@ -30,6 +30,7 @@ namespace BigNum {
 				log_to_invalid_base,
 				invalid_root,
 				root_of_negativ_number,
+				bignum_overflow,//big num max = 32^(UINT32_MAX+1)-1
 				//insert more fatal errors here
 				non_fatal_first
 			};
@@ -289,6 +290,66 @@ namespace BigNum {
 			if (positiv)decr();
 			else incr();
 			return r;
+		}
+
+		BigInt&operator<<=(ltype rhs) {
+			short b = rhs % (sizeof(type)*8);
+			rhs /= sizeof(type)*8;
+			clear_back();
+			if (rhs + value.size() < rhs) {//overflow
+				errors.push_back(Error::fatal::bignum_overflow);
+				return*this = 0;
+			}
+			std::vector<type>a; a.reserve(rhs);
+			for (ltype i = rhs; i--;)
+				a.push_back(0);
+			stdVector::merge(a, value); value = a;
+
+			type buffer = 0;
+			for (ltype j = 0; j<value.size(); j++) {
+				type buffer2 = value[j];
+				value[j] <<= b;
+				value[j] += (buffer >> sizeof(type) * 8 - b);
+				buffer = 0;
+
+				for (unsigned short i = b; i--;)
+					buffer+= (buffer2 & (0x1 << (sizeof(type) * 8 - i-1)));
+
+			}if (buffer)value.push_back(buffer>>sizeof(type)*8-b);
+			clear_back();
+
+			return*this;
+		}
+		BigInt&operator>>=(ltype rhs) {
+			unsigned short b = rhs % (sizeof(type)*8);
+			rhs /= sizeof(type)*8;
+			clear_back();
+			if (value.size()-rhs > value.size()) {
+				return*this = 0;
+			}
+			for (ltype i = 0; i < value.size() - rhs; i++)
+				value[i] = value[i + rhs];
+			clear_back();
+			type buffer = 0;
+			for (ltype j = value.size(); j--;) {
+				type buffer2 = value[j];
+				value[j] >>= b;
+				value[j] += (buffer << sizeof(type) * 8 - b);
+				buffer = 0;
+				for (unsigned short i = b; i--;)
+					buffer += buffer2 & (0x1 << (i));
+					
+			}
+			clear_back();
+			return*this;
+		}
+		BigInt operator >> (ltype in) {
+			auto b = *this;
+			return b >>= in;
+		}
+		BigInt operator<<(ltype in) {
+			auto b = *this;
+			return b <<= in;
 		}
 	};
 }
