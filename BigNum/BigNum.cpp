@@ -39,7 +39,7 @@ namespace BigNum {
 		unsigned long long d, r;
 		std::vector<type>buffer = value;
 		auto all_zero = [&buffer]() {
-			for (unsigned int i = 0; i < buffer.size(); i++)
+			for (unsigned long long i = 0; i < buffer.size(); i++)
 				if (buffer[i])
 					return false;
 			return true;
@@ -47,7 +47,7 @@ namespace BigNum {
 		std::string num;
 		do {
 			r = buffer.back();
-			for (int i = buffer.size() - 2; i >= 0; i--) {
+			for (unsigned long long i = buffer.size() - 2; i >= 0; i--) {
 				d = r / 10;
 				r = ((r - d * 10) << sizeof(type) * 8) + buffer[i];
 				buffer[i + 1] = d;
@@ -64,8 +64,8 @@ namespace BigNum {
 	}
 	std::string BigInt::getNumHex()const {
 		std::string buffer;
-		for (unsigned int j = value.size(); j--;)
-			for (unsigned int i = sizeof(type) * 2; i--;) {
+		for (unsigned long long j = value.size(); j--;)
+			for (unsigned long long i = sizeof(type) * 2; i--;) {
 				type buffer2 = value[j];
 				buffer2 = buffer2&(0xF << i * 4);
 				buffer.push_back(Hex_from_4Bit(buffer2 >> i * 4));
@@ -100,21 +100,20 @@ namespace BigNum {
 	jmp:
 		positiv = 1;
 		value.push_back(0);
-	}//*/
+	}
 	BigInt::BigInt(const BigInt&rhs) :positiv(rhs.positiv), errors(rhs.errors), value(rhs.value) {
 		clear_back();
 	}
 
-
-	BigInt&BigInt::add(const BigInt&rhs,unsigned int P) {
+	BigInt&BigInt::add(const BigInt&rhs,ltype P) {
 		bool a = 0;
 		if (P > value.size()) {
 			value.reserve(P - value.size());
 			a = 1;
 		}
-		for (unsigned int i = 0; i < rhs.value.size(); i++) {
+		for (unsigned long long i = 0; i < rhs.value.size(); i++) {
 			ltype buffer = rhs.value[i];
-			for (unsigned int j = i + P; buffer; j++) {
+			for (unsigned long long j = i + P; buffer; j++) {
 				if (value.size() > j)goto add;
 				while (j > value.size())value.push_back(0);
 				value.push_back(buffer);
@@ -132,7 +131,7 @@ namespace BigNum {
 	BigInt&BigInt::sub(const BigInt&rhs) {
 		ltype buffer = 0;
 		bool b;
-		for (unsigned int i = 0; (b = i < rhs.value.size()) || buffer; i++) {
+		for (unsigned long long i = 0; (b = i < rhs.value.size()) || buffer; i++) {
 			if (b)
 				buffer += rhs.value[i];
 			if (buffer) {
@@ -161,12 +160,12 @@ namespace BigNum {
 		ltype buffer2 = 0;
 		buffer.value.clear();
 		buffer.value.reserve(value.size() + rhs.value.size());
-		for (unsigned int i = 0; i < value.size() + rhs.value.size(); i++)
+		for (unsigned long long i = 0; i < value.size() + rhs.value.size(); i++)
 			buffer.value.push_back(0);
 
-		for (unsigned int i = rhs.value.size(); i--;) {
-			for (unsigned int j = value.size();j--;) {
-				buffer2 = (ltype)value[j] * (ltype)rhs.value[i];
+		for (unsigned long long i = rhs.value.size(); i--;) {
+			for (unsigned long long j = value.size();j--;) {
+				buffer2 = (unsigned long long)value[j] * (unsigned long long)rhs.value[i];
 				buffer.add(BigInt(buffer2,false), j + i);
 			}
 		}
@@ -234,7 +233,7 @@ namespace BigNum {
 #undef c
 
 	BigInt&BigInt::incr() {
-		for (unsigned int i = 0;; i++) {
+		for (unsigned long long i = 0;; i++) {
 			if (value.size() <= i) {
 				value.push_back(1);
 				return*this;
@@ -250,7 +249,7 @@ namespace BigNum {
 			value.push_back(1);
 			return*this;
 		}
-		for (unsigned int i = 0; i < value.size(); i++)
+		for (unsigned long long i = 0; i < value.size(); i++)
 			if (value[i])
 				value[i]--;
 		while (value.size()&&!value.back())value.pop_back();//0x00000000F -> 0xF
@@ -305,15 +304,20 @@ namespace BigNum {
 		return!(this[0] == rhs);
 	}
 
-	BigInt hyper(unsigned int l, BigInt a, BigInt b)//ackerman function //hyper operator
+	BigInt hyper(unsigned long long l,const BigInt&a,const BigInt&b)//hyper operator
 	{
 		//auto bufferr(rhs);
 		if (l == 0)return b + 1;
 		if (l == 1)return a + b;
 		if (l == 2)return a*b;
 		if (!a.positiv) {
-			b.positiv =! b.positiv;
-			a.positiv = 1;
+			auto d = a; d.positiv = 1;
+			auto e = b; e.positiv = !b.positiv;
+
+			BigInt c(d); e--;
+			for (BigInt i = 0; i < e; i++)
+				c = hyper(l - 1, c, d);
+			return c;
 		}
 		BigInt c(a);
 		for (BigInt i=0; i < b - 1; i++)
@@ -338,7 +342,7 @@ namespace BigNum {
 			}
 			if (buffer2 == 2)break;
 		}
-		for (BigInt i = buffery; i--!=0;){// I would have overloaded the ".operator bool" but it caused syntax errors
+		for (BigInt i = buffery; (i--)!=0;){// I would have overloaded the ".operator bool" but it caused syntax errors
 			buffer *= x;
 			buffery--;
 		}
@@ -465,12 +469,12 @@ namespace BigNum {
 				return*this = 0;
 			}
 			std::vector<type>a; a.reserve(rhs);
-			for (ltype i = rhs; i--;)
+			for (unsigned long long i = rhs; i--;)
 				a.push_back(0);
 			stdVector::merge(a, value); value = a;
 
 			type buffer = 0;
-			for (ltype j = 0; j<value.size(); j++) {
+			for (unsigned long long j = 0; j<value.size(); j++) {
 				type buffer2 = value[j];
 				value[j] <<= b;
 				value[j] += (buffer >> sizeof(type) * 8 - b);
@@ -491,11 +495,11 @@ namespace BigNum {
 			if (value.size()-rhs > value.size()) {
 				return*this = 0;
 			}
-			for (ltype i = 0; i < value.size() - rhs; i++)
+			for (unsigned long long i = 0; i < value.size() - rhs; i++)
 				value[i] = value[i + rhs];
 			clear_back();
 			type buffer = 0;
-			for (ltype j = value.size(); j--;) {
+			for (unsigned long long j = value.size(); j--;) {
 				type buffer2 = value[j];
 				value[j] >>= b;
 				value[j] += (buffer << sizeof(type) * 8 - b);
@@ -507,12 +511,43 @@ namespace BigNum {
 			clear_back();
 			return*this;
 		}
-		BigInt BigInt::operator>> (ltype in)const {
+		BigInt BigInt::operator>>(ltype in)const {
 			auto b = *this;
 			return b >>= in;
 		}
 		BigInt BigInt::operator<<(ltype in)const {
 			auto b = *this;
 			return b <<= in;
+		}
+
+		BigInt&BigInt::operator&=(const BigInt&rhs) {//bitwise and
+			while (rhs.value.size() < value.size())value.pop_back();
+			for (unsigned long long i = value.size(); i--;)value[i] &= rhs.value[i];
+			return*this;
+		}
+		BigInt&BigInt::operator|=(const BigInt&rhs) {//bitwise or
+			for (unsigned long long i = min(value.size(),rhs.value.size()); i--;)value[i] |= rhs.value[i];
+			return*this;
+		}
+		BigInt&BigInt::operator^=(const BigInt&rhs) {//bitwise xor
+			for (unsigned long long i = min(value.size(), rhs.value.size()); i--;)value[i] ^= rhs.value[i];
+			return*this;
+		}
+		BigInt BigInt::operator!()const {//bitwise not
+			auto b = *this;
+			for (unsigned long long i = value.size(); i--;)b.value[i] = !value[i];
+			return b;
+		}
+		BigInt BigInt::operator&(const BigInt&rhs)const {//bitwise and
+			auto a = *this;
+			return a &= rhs;
+		}
+		BigInt BigInt::operator|(const BigInt&rhs)const{//bitwise or
+			auto a = *this;
+			return a |= rhs;
+		}
+		BigInt BigInt::operator^(const BigInt&rhs)const{//bitwise xor
+			auto a = *this;
+			return a ^= rhs;
 		}
 }
