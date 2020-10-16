@@ -3,6 +3,7 @@
 #include<math.h>
 #include<string>
 
+
 namespace BigNum {
 	class BigInt {
 		using type = unsigned int;
@@ -27,16 +28,21 @@ namespace BigNum {
 		BigInt operator&	(const BigInt&rhs)	const;	//bitwise and
 		BigInt operator|	(const BigInt&rhs)	const;	//bitwise or
 		BigInt operator^	(const BigInt&rhs)	const;	//bitwise xor
-		BigInt operator!	()					const;	//bitwise not
+		BigInt operator~	()					const;	//bitwise not
 		BigInt operator>>	(ltype in)			const;	//bitwise right shift
 		BigInt operator<<	(ltype in)			const;	//bitwise left shift
 		BigInt operator++	(int);						//increment postfix
 		BigInt operator--	(int);						//decrement postfix
+		BigInt operator++	();							//increment prefix
+		BigInt operator--	();							//decrement prefix
 	public:
 		friend BigInt pow(const BigInt&x, const BigInt&y);	//power x to the power of y
-		friend BigInt root(const BigInt&x, const BigInt&y);	//root yth root of x
+		friend BigInt root(const BigInt&x, const BigInt&y, unsigned long long iterations = 10);//root yth root of x //iterations determines the accuracy of the 
 		friend BigInt log(const BigInt&x, const BigInt&y);	//logarithm log of x to the base of y
 		friend BigInt hyper(unsigned long long l,const BigInt&a,const BigInt&b);//hyper operator
+		friend BigInt GCD(const BigInt&x, const BigInt&y);	//greatest common divisor
+		friend BigInt LCM(const BigInt&x, const BigInt&y);	//least common multiple
+		friend BigInt abs(const BigInt&x);					//absolute
 	public:
 		bool operator>	(const BigInt&)const;
 		bool operator>=	(const BigInt&)const;
@@ -44,6 +50,7 @@ namespace BigNum {
 		bool operator<=	(const BigInt&)const;
 		bool operator==	(const BigInt&)const;
 		bool operator!=	(const BigInt&)const;
+		bool operator!()const { return *this == 0; }
 	public:
 		void setZero();//same as BigInt::operator=(0);
 		void clear_error();
@@ -68,8 +75,6 @@ namespace BigNum {
 		BigInt&sub(const BigInt&);//subtraction
 		BigInt&mul(const BigInt&);//multiplication
 		BigInt&div(const BigInt&, BigInt*rest = 0);//division
-		BigInt&incr();//increment;
-		BigInt&decr();//decrement
 		BigInt&mod(const BigInt&);
 
 
@@ -78,25 +83,6 @@ namespace BigNum {
 		void clear_back();
 		char Hex_from_4Bit(unsigned short in)const;
 	};
-}
-
-
-
-#define HIPART(halfsize,value)(((halfsize*)&value)[1])
-#define LOPART(halfsize,value)(((halfsize*)&value)[0])
-
-namespace num1 {
-	std::string IntToStr(unsigned int in);
-}
-
-namespace stdVector {
-	template<class T>
-	void merge(std::vector<T>&lhs,const std::vector<T>&rhs) {
-		lhs.reserve(rhs.size());
-		for (int i = 0; i < rhs.size();i++) {
-			lhs.push_back(rhs[i]);
-		}
-	}
 }
 
 namespace BigNum {

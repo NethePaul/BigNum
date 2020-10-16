@@ -16,6 +16,22 @@ namespace num1 {
 }
 
 
+#define HIPART(halfsize,value)(((halfsize*)&value)[1])
+#define LOPART(halfsize,value)(((halfsize*)&value)[0])
+
+
+namespace stdVector {
+	template<class T>
+	void merge(std::vector<T>&lhs, const std::vector<T>&rhs) {
+		lhs.reserve(rhs.size());
+		for (int i = 0; i < rhs.size(); i++) {
+			lhs.push_back(rhs[i]);
+		}
+	}
+}
+
+
+
 #define min(x,y)((x)<(y)?(x):(y))
 #define max(x,y)((x)>(y)?(x):(y))
 
@@ -47,10 +63,12 @@ namespace BigNum {
 		std::string num;
 		do {
 			r = buffer.back();
-			for (unsigned long long i = buffer.size() - 2; i >= 0; i--) {
-				d = r / 10;
-				r = ((r - d * 10) << sizeof(type) * 8) + buffer[i];
-				buffer[i + 1] = d;
+			if (buffer.size() >= 2) {
+				for (ltype i = buffer.size() - 1; i--;) {
+					d = r / 10;
+					r = ((r - d * 10) << sizeof(type) * 8) + buffer[i];
+					buffer[i + 1] = d;
+				}
 			}
 			d = r / 10;
 			r = r - d * 10;
@@ -95,7 +113,7 @@ namespace BigNum {
 		if (!rhs)goto jmp;
 		value.push_back(((type*)&rhs)[0]);
 		value.push_back(((type*)&rhs)[1]);
-		while (!value.back())value.pop_back();//0x00000000F -> 0xF
+		clear_back();
 		return;
 	jmp:
 		positiv = 1;
@@ -232,34 +250,6 @@ namespace BigNum {
 
 #undef c
 
-	BigInt&BigInt::incr() {
-		for (unsigned long long i = 0;; i++) {
-			if (value.size() <= i) {
-				value.push_back(1);
-				return*this;
-			}
-			if (value[i] != _UI32_MAX) {
-				value[i]++; return*this;
-			}
-		}
-	}
-	BigInt&BigInt::decr() {
-		if (value.size() == 0) {
-			positiv = 0;
-			value.push_back(1);
-			return*this;
-		}
-		for (unsigned long long i = 0; i < value.size(); i++)
-			if (value[i])
-				value[i]--;
-		while (value.size() && !value.back())value.pop_back();//0x00000000F -> 0xF
-		if (!value.size()) {
-			positiv = 1;
-			value.push_back(0);
-		}
-		return*this;
-	}
-
 
 	bool BigInt::operator>(const BigInt&rhs)const {
 		BigInt bthis = *this;
@@ -325,27 +315,25 @@ namespace BigNum {
 		return c;
 	}
 	BigInt pow(const BigInt&x, const BigInt&y) {
-		auto buffer = x;
-		auto buffery = y;
-		if (y == 0)return 1;
-		if (x == 0)return 0;
-		while (true) {
-			BigInt buffer2 = 2;
-			BigInt buffer3 = 2;
-			if (buffer2 < buffery) {
-				do {
-					buffer2 = buffer3;
-					buffer *= buffer;
-					buffer3 = buffer2*buffer2;
-				} while (buffer3 < buffery);
-				buffery -= buffer2;
+		auto buffer = x; auto X = x; X.clear_error();
+		auto buffery = y - 1;
+		if (y == 0)if (x == 0) { buffer = 1; buffer.errors.push_back(Error::fatal::division_by_zero); return buffer; }else return 1;
+		if (x == -1)return y%-2;
+		if (x == 0 || x == 1)return x;
+		if (y < 0) { buffer = 0; buffer.errors.push_back(Error::nonfatal::integer_division_accuracy_loss); return buffer; }
+		
+		
+		while (--buffery >= 0) {
+			BigInt y2 = 2;
+			for (BigInt i = X; (buffery -= y2) > 0; ) {
+				i *= i;
+				buffer *= i;
+				y2 <<= 1;
 			}
-			if (buffer2 == 2)break;
+			buffery += y2;
+			buffer *= X;
 		}
-		for (BigInt i = buffery; (i--) != 0;) {// I would have overloaded the ".operator bool" but it caused syntax errors
-			buffer *= x;
-			buffery--;
-		}
+		
 		return buffer;
 	}
 
@@ -427,7 +415,7 @@ namespace BigNum {
 	}
 	BigInt BigInt::operator%(const BigInt&rhs)const {
 		auto buffer = *this;
-		return buffer%rhs;
+		return buffer%=rhs;
 	}
 
 	BigInt BigInt::operator+(const BigInt&rhs)const {
@@ -448,17 +436,15 @@ namespace BigNum {
 	}
 
 	BigInt BigInt::operator++(int) {
-		auto r = *this;
-		if (positiv)incr();
-		else decr();
+		auto r = *this += 1;
 		return r;
 	}
 	BigInt BigInt::operator--(int) {
-		auto r = *this;
-		if (positiv)decr();
-		else incr();
+		auto r = *this -= 1;
 		return r;
 	}
+	BigInt BigInt::operator++() {return*this += 1;}
+	BigInt BigInt::operator--() {return*this -= 1;}
 
 	BigInt&BigInt::operator<<=(ltype rhs) {
 		short b = rhs % (sizeof(type) * 8);
@@ -533,9 +519,10 @@ namespace BigNum {
 		for (unsigned long long i = min(value.size(), rhs.value.size()); i--;)value[i] ^= rhs.value[i];
 		return*this;
 	}
-	BigInt BigInt::operator!()const {//bitwise not
-		auto b = *this;
-		for (unsigned long long i = value.size(); i--;)b.value[i] = !value[i];
+	BigInt BigInt::operator~()const {//bitwise not
+		auto b = *this; b.clear_back();
+		for (unsigned long long i = value.size(); i--;)b.value[i] = ~(value[i]);
+		b.clear_back();
 		return b;
 	}
 	BigInt BigInt::operator&(const BigInt&rhs)const {//bitwise and
@@ -550,4 +537,34 @@ namespace BigNum {
 		auto a = *this;
 		return a ^= rhs;
 	}
+
+	BigInt root(const BigInt&x, const BigInt&y, unsigned long long iterations) {//yth root of x
+		if (y == 0)
+			if (x == 0) { BigInt r = 1; r.errors.push_back(Error::fatal::invalid_root); return r; }
+			else return 1;
+		if (x == 0 || x == 1) return x;
+		BigInt r = x;
+		if (x < 0) { r.errors.push_back(Error::fatal::root_of_negativ_number); return r; }
+		const BigInt y2 = y - 1;
+		BigInt guess = 2;
+		auto is_approximately = [&](bool&perfect) {
+			auto b = abs(pow(guess, y) - x);
+			if (b == 0) { perfect = 1; return true; }
+			else perfect = 0;
+			auto c = abs(pow(guess + 1, y) - x);
+			auto d = abs(pow(guess - 1, y) - x);
+			if (b <= c && b <= d)
+				return true;
+			return false;
+		};
+		bool is_perfect;
+		do{
+			auto pguess = guess;
+			guess = (y2 * guess + x / pow(guess, y2)) / y;
+			if (guess == pguess) { guess.errors = x.errors; guess.errors.push_back(Error::nonfatal::integer_root_accuracy_loss); return guess; }
+		} while (!is_approximately(is_perfect));
+		if (!is_perfect)guess.errors.push_back(Error::nonfatal::integer_root_accuracy_loss);
+		return guess;
+	}
+	BigInt abs(const BigInt&x) {auto a = x; a.positiv = 1; return a;}
 }
