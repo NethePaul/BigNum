@@ -200,19 +200,25 @@ namespace BigNum {
 		if (rhs == 0) { errors.push_back(Error::fatal::division_by_zero); return*this; }
 
 
-		type i, j;
+		ltype i, j;
 		while (buffer > buffer2) {
 
 			b = 0;
 			size_t l = buffer2.value.size();
-			i = buffer.value.size() - l - (buffer.value.back() < buffer2.value.back());
+			auto a = (buffer.value.back() < buffer2.value.back());
+			i = buffer.value.size() - l - a;
 			b.add(buffer2, i);
 			l--;
-			j = /*/1;/*/buffer.value[i + l] / b.value[i + l];
-
+			if (!a)
+				j = buffer.value[i + l] / b.value[i + l];
+			else
+				j = ~0ULL / b.value[i + l] * buffer.value.back();
 			if (b*j > buffer) {
-				if (buffer2.value[l - 1]) {
-					j = buffer.value[i + l] / (b.value[i + l] + 1);
+				if (!l||buffer2.value[l - 1]) {
+					if (!a)
+						j = buffer.value[i + l] / (b.value[i + l] + 1);
+					else
+						j = buffer.value[i + l] / (b.value[i + l] + 1) * buffer.value.back();
 				}
 				else j--;
 			}
@@ -220,15 +226,6 @@ namespace BigNum {
 				b *= j;
 			else
 				j = 1;
-			//*/
-			if (b > buffer) {
-				i--;
-				b = 0;
-				b.add(buffer2, i);
-				while (b*j <= buffer&&j < 0x80000000)
-					j *= 2;
-				b *= j /= 2;
-			}
 			buffer.sub(b);
 			this[0].add(j, i);
 
@@ -259,7 +256,7 @@ namespace BigNum {
 		if (bthis.positiv != brhs.positiv)return bthis.positiv > brhs.positiv;
 		if (bthis.value.size() != brhs.value.size())return bthis.value.size() > brhs.value.size();
 
-		for (long i = bthis.value.size() - 1; i >= 0; i--)
+		for (unsigned long long i = bthis.value.size(); i--;)
 			if (bthis.value[i] != brhs.value[i])
 				return bthis.value[i] > brhs.value[i];
 
@@ -284,7 +281,7 @@ namespace BigNum {
 		if (bthis.positiv != brhs.positiv)return false;
 		if (bthis.value.size() != brhs.value.size())return false;
 
-		for (long i = bthis.value.size() - 1; i >= 0; i--)
+		for (unsigned long long i = bthis.value.size(); i--;)
 			if (bthis.value[i] != brhs.value[i])
 				return false;
 
@@ -296,7 +293,6 @@ namespace BigNum {
 
 	BigInt hyper(unsigned long long l, const BigInt&a, const BigInt&b)//hyper operator
 	{
-		//auto bufferr(rhs);
 		if (l == 0)return b + 1;
 		if (l == 1)return a + b;
 		if (l == 2)return a*b;
@@ -316,14 +312,14 @@ namespace BigNum {
 	}
 	BigInt pow(const BigInt&x, const BigInt&y) {
 		auto buffer = x; auto X = x; X.clear_error();
-		auto buffery = y - 1;
+		auto buffery = y;
 		if (y == 0)if (x == 0) { buffer = 1; buffer.errors.push_back(Error::fatal::division_by_zero); return buffer; }else return 1;
 		if (x == -1)return y%-2;
 		if (x == 0 || x == 1)return x;
 		if (y < 0) { buffer = 0; buffer.errors.push_back(Error::nonfatal::integer_division_accuracy_loss); return buffer; }
 		
 		
-		while (--buffery >= 0) {
+		while (buffery--) {
 			BigInt y2 = 2;
 			for (BigInt i = X; (buffery -= y2) > 0; ) {
 				i *= i;
@@ -538,7 +534,7 @@ namespace BigNum {
 		return a ^= rhs;
 	}
 
-	BigInt root(const BigInt&x, const BigInt&y, unsigned long long iterations) {//yth root of x
+	BigInt root(const BigInt&x, const BigInt&y) {//yth root of
 		if (y == 0)
 			if (x == 0) { BigInt r = 1; r.errors.push_back(Error::fatal::invalid_root); return r; }
 			else return 1;
@@ -548,7 +544,7 @@ namespace BigNum {
 		const BigInt y2 = y - 1;
 		BigInt guess = 2;
 		auto is_approximately = [&](bool&perfect) {
-			auto b = abs(pow(guess, y) - x);
+			auto b = abs(x - pow(guess, y));
 			if (b == 0) { perfect = 1; return true; }
 			else perfect = 0;
 			auto c = abs(pow(guess + 1, y) - x);
@@ -558,11 +554,13 @@ namespace BigNum {
 			return false;
 		};
 		bool is_perfect;
-		do{
+		do {
+			guess.clear_error();
 			auto pguess = guess;
 			guess = (y2 * guess + x / pow(guess, y2)) / y;
 			if (guess == pguess) { guess.errors = x.errors; guess.errors.push_back(Error::nonfatal::integer_root_accuracy_loss); return guess; }
 		} while (!is_approximately(is_perfect));
+		guess.errors = x.errors;
 		if (!is_perfect)guess.errors.push_back(Error::nonfatal::integer_root_accuracy_loss);
 		return guess;
 	}

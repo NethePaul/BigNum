@@ -5,15 +5,17 @@ using namespace BigNum;
 using namespace std;
 void report_error(const BigInt&i);
 int main() {
-	BigInt var1 = 10000000000;
+	BigInt var1 = 1000000000000000000;
+	std::cout << " " << var1.getNumDec() << std::endl;
+	var1 = pow(var1, 2);
 	var1 <<= 0;
 	std::cout <<" "<< var1.getNumDec() << std::endl;
-	var1 = root(var1, 10);
+	var1 = root(var1, 2);
 	auto a = var1.getNumDec();
-	std::wcout << L"=" << a.c_str() <<L"^10"<< std::endl;
-	std::cout << '=' << pow(var1,10).getNumDec()<< std::endl;
-	std::wcout << L" " << var1++.getNumDec().c_str() << L"^10" << std::endl;
-	std::cout << '=' << pow(var1,10).getNumDec() << std::endl;
+	std::wcout << L"=" << a.c_str() <<L"^2"<< std::endl;
+	std::cout << '=' << pow(var1,2).getNumDec()<< std::endl;
+	std::wcout << L" " << var1++.getNumDec().c_str() << L"^2" << std::endl;
+	std::cout << '=' << pow(var1,2).getNumDec() << std::endl;
 	report_error(var1);
 	cin.get();
 }

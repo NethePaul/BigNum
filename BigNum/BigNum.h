@@ -37,7 +37,7 @@ namespace BigNum {
 		BigInt operator--	();							//decrement prefix
 	public:
 		friend BigInt pow(const BigInt&x, const BigInt&y);	//power x to the power of y
-		friend BigInt root(const BigInt&x, const BigInt&y, unsigned long long iterations = 10);//root yth root of x //iterations determines the accuracy of the 
+		friend BigInt root(const BigInt&x, const BigInt&y);//root yth root of x
 		friend BigInt log(const BigInt&x, const BigInt&y);	//logarithm log of x to the base of y
 		friend BigInt hyper(unsigned long long l,const BigInt&a,const BigInt&b);//hyper operator
 		friend BigInt GCD(const BigInt&x, const BigInt&y);	//greatest common divisor
@@ -50,7 +50,7 @@ namespace BigNum {
 		bool operator<=	(const BigInt&)const;
 		bool operator==	(const BigInt&)const;
 		bool operator!=	(const BigInt&)const;
-		bool operator!()const { return *this == 0; }
+		bool operator!()const { return *this==0; }
 	public:
 		void setZero();//same as BigInt::operator=(0);
 		void clear_error();
@@ -61,7 +61,7 @@ namespace BigNum {
 		BigInt(signed long long rhs);
 		BigInt(ltype rhs, bool);//apparently you can't overload a function for both (signed T) and (unsigned T) so the second parameter is only for the copiler to differentiate between both costructors 
 		BigInt(const BigInt&rhs);
-
+		explicit operator bool() { return *this != 0; };
 
 	private:
 
