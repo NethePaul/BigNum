@@ -109,7 +109,16 @@ namespace BigNum {
 		positiv = 1;
 		value.push_back(0);
 	}
+	BigInt::BigInt(const std::string&rhs) {
+		setZero();
+		positiv = (rhs[0] != '-');
+		for (ltype i = !positiv; rhs[i]; i++) {
+			if (rhs[i] > '9' || rhs[i] < '0')break;
+			*this *= 10;
+			*this += rhs[i] - '0';
 
+		}
+	}
 	BigInt::BigInt(ltype rhs, bool) :positiv(1) {
 		if (!rhs)goto jmp;
 		value.push_back(((type*)&rhs)[0]);
@@ -202,7 +211,7 @@ namespace BigNum {
 
 
 		ltype i, j;
-		while (buffer > buffer2) {
+		while (buffer >= buffer2) {
 
 			b = 0;
 			size_t l = buffer2.value.size();
@@ -440,8 +449,8 @@ namespace BigNum {
 		auto r = *this -= 1;
 		return r;
 	}
-	BigInt BigInt::operator++() {return*this += 1;}
-	BigInt BigInt::operator--() {return*this -= 1;}
+	BigInt&BigInt::operator++() {return*this += 1;}
+	BigInt&BigInt::operator--() {return*this -= 1;}
 
 	BigInt&BigInt::operator<<=(ltype rhs) {
 		short b = rhs % (sizeof(type) * 8);

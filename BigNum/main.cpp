@@ -5,11 +5,9 @@ using namespace BigNum;
 using namespace std;
 void report_error(const BigInt&i);
 int main() {
-	BigInt var1 = 35, var2 = 15;
-	auto result = LCM(var1, var2);
-	std::cout << var1.getNumDec() << "%" << result.getNumDec() << "=" << (var1%result).getNumDec() << std::endl;
-	std::cout << var2.getNumDec() << "%" << result.getNumDec() << "=" << (var2%result).getNumDec() << std::endl;
-	report_error(var1);
+	BigFloat a(100, 3);//one hundred thirds
+	std::cout << a.getNumDec(6) << std::endl;//show at most six digits after the dot  
+	//report_error(var1);
 	cin.get();
 }
 

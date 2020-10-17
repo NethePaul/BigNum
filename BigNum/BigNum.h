@@ -33,8 +33,8 @@ namespace BigNum {
 		BigInt operator<<	(ltype in)			const;	//bitwise left shift
 		BigInt operator++	(int);						//increment postfix
 		BigInt operator--	(int);						//decrement postfix
-		BigInt operator++	();							//increment prefix
-		BigInt operator--	();							//decrement prefix
+		BigInt&operator++	();							//increment prefix
+		BigInt&operator--	();							//decrement prefix
 	public:
 		friend BigInt pow(const BigInt&x, const BigInt&y);	//power x to the power of y
 		friend BigInt root(const BigInt&x, const BigInt&y);//root yth root of x
@@ -61,6 +61,7 @@ namespace BigNum {
 		BigInt(signed long long rhs = 0);
 		BigInt(ltype rhs, bool);//apparently you can't overload a function for both (signed T) and (unsigned T) so the second parameter is only for the copiler to differentiate between both costructors 
 		BigInt(const BigInt&rhs);
+		BigInt(const std::string&rhs);//decimal input
 		explicit operator bool()const { return *this != 0; };
 
 	private:
@@ -77,7 +78,7 @@ namespace BigNum {
 		BigInt&div(const BigInt&, BigInt*rest = 0);//division
 		BigInt&mod(const BigInt&);
 
-
+	public:
 		friend class BigFloat;
 	private:
 		void clear_back();
@@ -115,3 +116,4 @@ namespace BigNum {
 
 	class BigFloat;
 }
+#include"BigFloat.h"
