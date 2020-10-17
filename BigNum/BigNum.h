@@ -103,10 +103,14 @@ namespace BigNum {
 			enum {
 				decimal_to_integer_accuracy_loss = fatal::non_fatal_first,
 				integer_division_accuracy_loss,
-				integer_root_accuracy_loss
+				integer_root_accuracy_loss,
+				integer_log_accuracy_loss,
 				//insert more non fatal errors here
+				count
+				
 			};
 		}
+		enum {total_error_count = nonfatal::count};
 	}
 
 	class BigFloat;

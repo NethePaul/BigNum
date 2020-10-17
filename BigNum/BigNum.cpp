@@ -23,6 +23,7 @@ namespace num1 {
 namespace stdVector {
 	template<class T>
 	void merge(std::vector<T>&lhs, const std::vector<T>&rhs) {
+		if (&lhs == &rhs)return;
 		lhs.reserve(rhs.size());
 		for (int i = 0; i < rhs.size(); i++) {
 			lhs.push_back(rhs[i]);
@@ -544,13 +545,15 @@ namespace BigNum {
 		const BigInt y2 = y - 1;
 		BigInt guess = 2;
 		auto is_approximately = [&](bool&perfect) {
-			auto b = abs(x - pow(guess, y));
+			auto b = x - pow(guess, y);
 			if (b == 0) { perfect = 1; return true; }
 			else perfect = 0;
 			auto c = abs(pow(guess + 1, y) - x);
 			auto d = abs(pow(guess - 1, y) - x);
-			if (b <= c && b <= d)
+			if (abs(b) <= c && abs(b) <= d) {
+				if (b < 0)guess--;//always return a value smaller or equal to the correct result, but never a value greater
 				return true;
+			}
 			return false;
 		};
 		bool is_perfect;
@@ -562,7 +565,18 @@ namespace BigNum {
 		} while (!is_approximately(is_perfect));
 		guess.errors = x.errors;
 		if (!is_perfect)guess.errors.push_back(Error::nonfatal::integer_root_accuracy_loss);
+		stdVector::merge(guess.errors, y.errors);
 		return guess;
 	}
 	BigInt abs(const BigInt&x) {auto a = x; a.positiv = 1; return a;}
+	BigInt log(const BigInt&x, const BigInt&base) {//no optimizations yet
+		BigInt B = base;
+		BigInt i = 1;
+		if (abs(base) == 1 || base == 0) { i.errors.push_back(Error::fatal::log_to_invalid_base); stdVector::merge(i.errors, x.errors); stdVector::merge(i.errors, base.errors); return i; }
+		while (B < x) { B *= base; i++; };
+		if (B != x) { i.errors.push_back(Error::nonfatal::integer_log_accuracy_loss); i--; }
+		stdVector::merge(i.errors, x.errors);
+		stdVector::merge(i.errors, base.errors);
+		return i;
+	}
 }
