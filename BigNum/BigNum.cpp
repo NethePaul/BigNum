@@ -579,4 +579,17 @@ namespace BigNum {
 		stdVector::merge(i.errors, base.errors);
 		return i;
 	}
+	BigInt GCD(BigInt a, BigInt b)
+	{
+		BigInt h;
+		if (a == 0) return abs(b);
+		if (b == 0) return abs(a);
+		do {
+			h = a % b;
+			a = b;
+			b = h;
+		} while (b != 0);
+		return abs(a);
+	}
+	BigInt LCM(const BigInt&x, const BigInt&y) {return abs(x*y) / GCD(x, y);}
 }

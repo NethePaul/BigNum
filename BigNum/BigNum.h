@@ -40,7 +40,7 @@ namespace BigNum {
 		friend BigInt root(const BigInt&x, const BigInt&y);//root yth root of x
 		friend BigInt log(const BigInt&x, const BigInt&y);	//logarithm log of x to the base of y
 		friend BigInt hyper(unsigned long long l,const BigInt&a,const BigInt&b);//hyper operator
-		friend BigInt GCD(const BigInt&x, const BigInt&y);	//greatest common divisor
+		friend BigInt GCD(BigInt x, BigInt y);				//greatest common divisor
 		friend BigInt LCM(const BigInt&x, const BigInt&y);	//least common multiple
 		friend BigInt abs(const BigInt&x);					//absolute
 	public:
@@ -58,7 +58,7 @@ namespace BigNum {
 		std::string getNumDec()const;
 		std::string getNumHex()const;
 	public:
-		BigInt(signed long long rhs);
+		BigInt(signed long long rhs = 0);
 		BigInt(ltype rhs, bool);//apparently you can't overload a function for both (signed T) and (unsigned T) so the second parameter is only for the copiler to differentiate between both costructors 
 		BigInt(const BigInt&rhs);
 		explicit operator bool() { return *this != 0; };

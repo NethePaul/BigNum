@@ -5,16 +5,10 @@ using namespace BigNum;
 using namespace std;
 void report_error(const BigInt&i);
 int main() {
-	BigInt var1 = 1000000000000000001;
-	std::cout << " " << var1.getNumDec() << std::endl;
-	var1 = pow(var1, 100);
-	std::cout << " " << var1.getNumDec() << std::endl;
-	var1 = log(var1, 10);
-	auto a = var1.getNumDec();
-	std::wcout << L"=10^" << a.c_str()<< std::endl;
-	std::cout << '=' << pow(10,var1).getNumDec()<< std::endl;
-	std::wcout << L"10^" << var1++.getNumDec().c_str() << std::endl;
-	std::cout << '=' << pow(10,var1).getNumDec() << std::endl;
+	BigInt var1 = 35, var2 = 15;
+	auto result = LCM(var1, var2);
+	std::cout << var1.getNumDec() << "%" << result.getNumDec() << "=" << (var1%result).getNumDec() << std::endl;
+	std::cout << var2.getNumDec() << "%" << result.getNumDec() << "=" << (var2%result).getNumDec() << std::endl;
 	report_error(var1);
 	cin.get();
 }
