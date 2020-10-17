@@ -61,7 +61,7 @@ namespace BigNum {
 		BigInt(signed long long rhs = 0);
 		BigInt(ltype rhs, bool);//apparently you can't overload a function for both (signed T) and (unsigned T) so the second parameter is only for the copiler to differentiate between both costructors 
 		BigInt(const BigInt&rhs);
-		explicit operator bool() { return *this != 0; };
+		explicit operator bool()const { return *this != 0; };
 
 	private:
 
