@@ -3,6 +3,7 @@
 
 namespace BigNum {
 	class BigFloat {
+	public:
 		BigFloat&operator=	(const BigFloat&rhs);			//copy assignment opertor
 		BigFloat&operator+=	(const BigFloat&rhs);			//addition
 		BigFloat&operator-=	(const BigFloat&rhs);			//subtraction
@@ -17,25 +18,28 @@ namespace BigNum {
 		BigFloat&operator++	();								//increment prefix
 		BigFloat&operator--	();								//decrement prefix
 	public:
-		friend BigFloat pow(const BigFloat&x, const BigFloat&y);//power x to the power of y
-		friend BigFloat root(const BigFloat&x,const BigFloat&y);//root yth root of x
-		friend BigFloat log(const BigFloat&x, const BigFloat&y);//logarithm log of x to the base of y	//undefined
+		friend BigFloat pow(const BigFloat&x, const BigFloat&y, const BigInt&accuracy=1);//power x to the power of y
+		friend BigFloat root(const BigFloat&x,const BigFloat&y, const BigInt&accuracy=1);//root yth root of x
+		friend BigFloat log(const BigFloat&x, const BigFloat&y, const BigInt&accuracy=1);//logarithm log of x to the base of y	//undefined
 		friend BigFloat abs(const BigFloat&x);					//absolute								//undefined
 	public:
-		bool operator>	(const BigFloat&)const;//undefined
-		bool operator>=	(const BigFloat&)const;//undefined
-		bool operator<	(const BigFloat&)const;//undefined
-		bool operator<=	(const BigFloat&)const;//undefined
-		bool operator==	(const BigFloat&)const;//undefined
-		bool operator!=	(const BigFloat&)const;//undefined
+		bool operator>	(const BigFloat&)const;
+		bool operator>=	(const BigFloat&)const;
+		bool operator<	(const BigFloat&)const;
+		bool operator<=	(const BigFloat&)const;
+		bool operator==	(const BigFloat&)const;
+		bool operator!=	(const BigFloat&)const;
 		bool operator!()const { return *this == 0; }
+		explicit operator bool() { return*this != 0; }
 	public:
 		void setZero() { *this = 0; };
 		void clear_error() { numerator.clear_error(); denominator.clear_error(); };
 		const auto&getErrors()const;//undefined
 		std::string getNumDec(unsigned long long max_decimals=10)const;//the parameter determines how many decimals after the dot should be outputed if needed
+		std::string getFractionDec()const;
+		std::string getFractionHex()const;
 
-		BigFloat(const BigInt&numerator, const BigInt&denominator = 1);
+		BigFloat(const BigInt&numerator = 1 , const BigInt&denominator = 1);
 		BigFloat(const BigFloat&)=default;
 		BigFloat(long long rhs) { *this = BigInt(rhs); }
 		BigFloat(const std::string&);

@@ -5,10 +5,20 @@ using namespace BigNum;
 using namespace std;
 void report_error(const BigInt&i);
 int main() {
-	BigFloat a(100, 3);//one hundred thirds
-	std::cout << a.getNumDec(6) << std::endl;//show at most six digits after the dot  
+	BigFloat a(81, 25);//one hundred thirds
+	char buffer[1024];
+	while (true) {
+		std::cin >> buffer; std::cout << "______" << std::endl;
+		a.numerator = std::string(buffer);
+		std::cin >> buffer;
+		a.denominator = std::string(buffer);
+		a.convertToFraction();
+		std::cout << a.getFractionDec() << std::endl;
+		a = root(a, 4);//this will not return the correct value for irrational numbers
+		std::cout << a.getNumDec() << std::endl;
+	}
 	//report_error(var1);
-	cin.get();
+	system("pause");
 }
 
 void report_error(const BigInt&i) {

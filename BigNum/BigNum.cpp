@@ -222,13 +222,13 @@ namespace BigNum {
 			if (!a)
 				j = buffer.value[i + l] / b.value[i + l];
 			else
-				j = ~0ULL / b.value[i + l] * buffer.value.back();
+				j = (((unsigned long long)buffer.value.back())<<(sizeof(ltype)*4)) / b.value[i + l];
 			if (b*j > buffer) {
 				if (!l||buffer2.value[l - 1]) {
 					if (!a)
 						j = buffer.value[i + l] / (b.value[i + l] + 1);
 					else
-						j = buffer.value[i + l] / (b.value[i + l] + 1) * buffer.value.back();
+						j = (((unsigned long long)buffer.value.back()) << (sizeof(ltype) * 4)) / (b.value[i + l]+1);
 				}
 				else j--;
 			}
@@ -550,7 +550,7 @@ namespace BigNum {
 			else return 1;
 		if (x == 0 || x == 1) return x;
 		BigInt r = x;
-		if (x < 0) { r.errors.push_back(Error::fatal::root_of_negativ_number); return r; }
+		if (x < 0&&y%2) { r.errors.push_back(Error::fatal::root_of_negativ_number); return r; }
 		const BigInt y2 = y - 1;
 		BigInt guess = 2;
 		auto is_approximately = [&](bool&perfect) {
@@ -559,10 +559,8 @@ namespace BigNum {
 			else perfect = 0;
 			auto c = abs(pow(guess + 1, y) - x);
 			auto d = abs(pow(guess - 1, y) - x);
-			if (abs(b) <= c && abs(b) <= d) {
-				if (b < 0)guess--;//always return a value smaller or equal to the correct result, but never a value greater
+			if (abs(b) <= c && abs(b) <= d) 
 				return true;
-			}
 			return false;
 		};
 		bool is_perfect;
