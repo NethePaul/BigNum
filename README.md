@@ -1,4 +1,20 @@
 # BigNum
-a class for integer bigger than any normal integer limit
-this Repository adds the class BigInt and I am planning on adding BigFloat once I finished BigInt
-the BigInt integer limit should be 2^(32*(2^(64)-1))-1
+##BigInt
+a class to represent numbers greater than most interger limits
+- [X] error detection (e.g. division by zero)
+- [X] addition and subtraction
+- [X] division and multiplication
+- [X] bitwise operator
+- [X] roots
+- [X] logs
+- [X] power
+
+##BigFloat
+a class that represents rational numbers
+- [ ] error detection
+- [X] addition and subtraction
+- [X] division and multiplication
+- [X] bitwise operator
+- [X] roots
+- [ ] logs
+- [X] power
