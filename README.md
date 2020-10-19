@@ -1,5 +1,5 @@
 # BigNum
-##BigInt
+## BigInt
 a class to represent numbers greater than most interger limits
 - [X] error detection (e.g. division by zero)
 - [X] addition and subtraction
@@ -9,7 +9,7 @@ a class to represent numbers greater than most interger limits
 - [X] logs
 - [X] power
 
-##BigFloat
+## BigFloat
 a class that represents rational numbers
 - [ ] error detection
 - [X] addition and subtraction
