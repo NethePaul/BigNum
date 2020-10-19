@@ -21,7 +21,7 @@ namespace BigNum {
 		friend BigFloat pow(const BigFloat&x, const BigFloat&y, const BigInt&accuracy=1);//power x to the power of y
 		friend BigFloat root(const BigFloat&x,const BigFloat&y, const BigInt&accuracy=1);//root yth root of x
 		friend BigFloat log(const BigFloat&x, const BigFloat&y, const BigInt&accuracy=1);//logarithm log of x to the base of y	//undefined
-		friend BigFloat abs(const BigFloat&x);					//absolute								//undefined
+		friend BigFloat abs(const BigFloat&x);					//absolute
 	public:
 		bool operator>	(const BigFloat&)const;
 		bool operator>=	(const BigFloat&)const;
@@ -42,7 +42,7 @@ namespace BigNum {
 		BigFloat(const BigInt&numerator = 1 , const BigInt&denominator = 1);
 		BigFloat(const BigFloat&)=default;
 		BigFloat(long long rhs) { *this = BigInt(rhs); }
-		BigFloat(const std::string&);
+		BigFloat(const std::string&);//enter number as decimal such as 5.6 or fraction such as 6/7 or as a combination of both such as 6.5/8 or 9/.3 if you enter a value like 7/6/3 it will be treated as (7/6)/3
 
 		BigFloat&convertToFraction();// 4/12 -> 1/3 or 5/25 -> 1/5 or 9/3 -> 3/1
 	public:

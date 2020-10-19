@@ -50,7 +50,7 @@ namespace BigNum {
 		}
 	}
 	void BigInt::clear_error() {
-		errors.clear();
+		errors = 0;
 	}
 	std::string BigInt::getNumDec()const {
 		unsigned long long d, r;
@@ -164,7 +164,7 @@ namespace BigNum {
 				buffer += rhs.value[i];
 			if (buffer) {
 				if (value.size() > i)goto sub;
-				errors.push_back(Error::fatal::invalid_function_call);
+				adderror(Error::fatal::invalid_function_call);
 				return*this;
 			sub:
 
@@ -207,7 +207,7 @@ namespace BigNum {
 		buffer.positiv = buffer2.positiv = 1;
 		setZero();
 
-		if (rhs == 0) { errors.push_back(Error::fatal::division_by_zero); return*this; }
+		if (rhs == 0) { adderror(Error::fatal::division_by_zero); return*this; }
 
 
 		ltype i, j;
@@ -245,7 +245,7 @@ namespace BigNum {
 		if (rest)
 			*rest = buffer;
 		else if (buffer != 0)
-			errors.push_back(Error::nonfatal::integer_division_accuracy_loss);
+			adderror(Error::nonfatal::integer_division_accuracy_loss);
 
 		return*this;
 	}
@@ -323,10 +323,10 @@ namespace BigNum {
 	BigInt pow(const BigInt&x, const BigInt&y) {
 		auto buffer = x; auto X = x; X.clear_error();
 		auto buffery = y;
-		if (y == 0)if (x == 0) { buffer = 1; buffer.errors.push_back(Error::fatal::division_by_zero); return buffer; }else return 1;
+		if (y == 0)if (x == 0) { buffer = 1; buffer.adderror(Error::fatal::division_by_zero); return buffer; }else return 1;
 		if (x == -1)return y%-2;
 		if (x == 0 || x == 1)return x;
-		if (y < 0) { buffer = 0; buffer.errors.push_back(Error::nonfatal::integer_division_accuracy_loss); return buffer; }
+		if (y < 0) { buffer = 0; buffer.adderror(Error::nonfatal::integer_division_accuracy_loss); return buffer; }
 		
 		
 		while (buffery--) {
@@ -353,7 +353,7 @@ namespace BigNum {
 		return*this;
 	}
 	BigInt&BigInt::operator+=(const BigInt&rhs) {
-		stdVector::merge(errors, rhs.errors);
+		adderror( rhs.errors);
 		if (positiv == rhs.positiv)return add(rhs);
 		if (this[0] > rhs)
 			return sub(rhs);
@@ -370,7 +370,7 @@ namespace BigNum {
 		return*this;
 	}
 	BigInt&BigInt::operator-=(const BigInt&rhs) {
-		stdVector::merge(errors, rhs.errors);
+		adderror( rhs.errors);
 		if (positiv != rhs.positiv)return add(rhs);
 		if (*this > rhs)
 			return sub(rhs);
@@ -388,12 +388,12 @@ namespace BigNum {
 		return*this;
 	}
 	BigInt&BigInt::operator*=(const BigInt&rhs) {
-		stdVector::merge(errors, rhs.errors);
+		adderror( rhs.errors);
 		positiv = !(positiv^rhs.positiv);
 		return mul(rhs);
 	}
 	BigInt&BigInt::operator/=(const BigInt&rhs) {
-		stdVector::merge(errors, rhs.errors);
+		adderror( rhs.errors);
 		bool buffer = positiv;
 
 		div(rhs);
@@ -407,7 +407,7 @@ namespace BigNum {
 		return*this;
 	}
 	BigInt&BigInt::operator%=(const BigInt&rhs) {
-		stdVector::merge(errors, rhs.errors);
+		adderror( rhs.errors);
 		bool buffer = positiv;
 
 		mod(rhs);
@@ -457,7 +457,7 @@ namespace BigNum {
 		rhs /= sizeof(type) * 8;
 		clear_back();
 		if (rhs + value.size() < rhs) {//overflow
-			errors.push_back(Error::fatal::bignum_overflow);
+			adderror(Error::fatal::bignum_overflow);
 			return*this = 0;
 		}
 		std::vector<type>a; a.reserve(rhs);
@@ -546,11 +546,11 @@ namespace BigNum {
 
 	BigInt root(const BigInt&x, const BigInt&y) {//yth root of
 		if (y == 0)
-			if (x == 0) { BigInt r = 1; r.errors.push_back(Error::fatal::invalid_root); return r; }
+			if (x == 0) { BigInt r = 1; r.adderror(Error::fatal::invalid_root); return r; }
 			else return 1;
 		if (x == 0 || x == 1) return x;
 		BigInt r = x;
-		if (x < 0&&y%2) { r.errors.push_back(Error::fatal::root_of_negativ_number); return r; }
+		if (x < 0&&y%2) { r.adderror(Error::fatal::root_of_negativ_number); return r; }
 		const BigInt y2 = y - 1;
 		BigInt guess = 2;
 		auto is_approximately = [&](bool&perfect) {
@@ -568,22 +568,22 @@ namespace BigNum {
 			guess.clear_error();
 			auto pguess = guess;
 			guess = (y2 * guess + x / pow(guess, y2)) / y;
-			if (guess == pguess) { guess.errors = x.errors; guess.errors.push_back(Error::nonfatal::integer_root_accuracy_loss); return guess; }
+			if (guess == pguess) { guess.errors = x.errors; guess.adderror(Error::nonfatal::integer_root_accuracy_loss); return guess; }
 		} while (!is_approximately(is_perfect));
 		guess.errors = x.errors;
-		if (!is_perfect)guess.errors.push_back(Error::nonfatal::integer_root_accuracy_loss);
-		stdVector::merge(guess.errors, y.errors);
+		if (!is_perfect)guess.adderror(Error::nonfatal::integer_root_accuracy_loss);
+		guess.adderror(y.errors);
 		return guess;
 	}
 	BigInt abs(const BigInt&x) {auto a = x; a.positiv = 1; return a;}
 	BigInt log(const BigInt&x, const BigInt&base) {//no optimizations yet
 		BigInt B = base;
 		BigInt i = 1;
-		if (abs(base) == 1 || base == 0) { i.errors.push_back(Error::fatal::log_to_invalid_base); stdVector::merge(i.errors, x.errors); stdVector::merge(i.errors, base.errors); return i; }
+		if (abs(base) == 1 || base == 0) { i.adderror(Error::fatal::log_to_invalid_base); i.adderror(x.errors); i.adderror( base.errors); return i; }
 		while (B < x) { B *= base; i++; };
-		if (B != x) { i.errors.push_back(Error::nonfatal::integer_log_accuracy_loss); i--; }
-		stdVector::merge(i.errors, x.errors);
-		stdVector::merge(i.errors, base.errors);
+		if (B != x) { i.adderror(Error::nonfatal::integer_log_accuracy_loss); i--; }
+		i.adderror(x.errors);
+		i.adderror(base.errors);
 		return i;
 	}
 	BigInt GCD(BigInt a, BigInt b)

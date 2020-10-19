@@ -40,7 +40,7 @@ namespace BigNum {
 		if (x < 0 && n.numerator % 2)return 0;
 		if (n == 1)return x;
 		if (x == -1)return -1;
-		BigFloat guess = 2;
+		BigFloat guess(root(x.numerator, y.numerator), root(x.denominator, y.numerator));
 		bool is_perfect = 0;
 		auto a = pow(BigFloat(1, 2), accuracy);
 		auto is_approximately = [&]() {
@@ -54,9 +54,9 @@ namespace BigNum {
 			else if (b > 0)b += a/2;
 			return false;
 		};
-		do {
+		while(!is_approximately()) {
 			guess = ((y - 1)*guess + A / pow(guess, n-1)) / n;//the denominator of n is set to const 1 therefor pow will not call root and create an infinit loop
-		} while (!is_approximately());
+		}
 		return guess;
 	}
 
@@ -73,14 +73,20 @@ namespace BigNum {
 	}
 	BigFloat::BigFloat(const std::string&rhs) {
 		setZero();
-		numerator.positiv = (rhs[0] != '-');
-		bool afterdot = 0;
-		for (unsigned long long i = !numerator.positiv; rhs[i]; i++) {
-			if (rhs[i] > '9' || rhs[i] < '0')if (rhs[i] == '.') { afterdot = 1; continue; }else break;
-			numerator *= 10;
-			numerator += rhs[i] - '0';
-			if (afterdot)denominator *= 10;
+		auto buffer = *this = 0;
+		buffer.numerator.positiv = (rhs[0] != '-');
+		bool afterdot = 0, is_fraction = 0;
+		for (unsigned long long i = !buffer.numerator.positiv; rhs[i]; i++) {
+			if (rhs[i] > '9' || rhs[i] < '0')
+				if (rhs[i] == '.') { afterdot = 1; continue; }
+				else if (rhs[i] == '/') { afterdot = 0; if (is_fraction)*this /= buffer; else *this = buffer; is_fraction = 1; buffer = 0; continue; }
+				else break;
+			buffer.numerator *= 10;
+			buffer.numerator += rhs[i] - '0';
+			if (afterdot)buffer.denominator *= 10;
 		}
+		if (is_fraction)*this /= buffer;
+		else *this = buffer;
 		convertToFraction();
 	}
 

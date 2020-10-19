@@ -54,7 +54,7 @@ namespace BigNum {
 	public:
 		void setZero();//same as BigInt::operator=(0);
 		void clear_error();
-		const auto&getErrors()const { return errors; }
+		bool getErrors(long long error)const { return errors&error; }
 		std::string getNumDec()const;
 		std::string getNumHex()const;
 	public:
@@ -67,7 +67,7 @@ namespace BigNum {
 	private:
 
 		std::vector<type>value;
-		std::vector<short>errors;
+		long long errors;
 		bool positiv;
 
 	private:
@@ -81,6 +81,7 @@ namespace BigNum {
 	public:
 		friend class BigFloat;
 	private:
+		void adderror(long long error) { errors |= error; }
 		void clear_back();
 		char Hex_from_4Bit(unsigned short in)const;
 	};
@@ -90,28 +91,23 @@ namespace BigNum {
 	namespace Error {
 		namespace fatal {
 			enum {
-				invalid_function_call,
-				division_by_zero,
-				log_to_invalid_base,
-				invalid_root,
-				root_of_negativ_number,
-				bignum_overflow,//big num max = 32^(UINT32_MAX+1)-1
-				//insert more fatal errors here
-				non_fatal_first
+				invalid_function_call=0x1,
+				division_by_zero=0x2,
+				log_to_invalid_base=0x4,
+				invalid_root=0x8,
+				root_of_negativ_number=0x10,
+				bignum_overflow=0x20
 			};
 		}
 		namespace nonfatal {
 			enum {
-				decimal_to_integer_accuracy_loss = fatal::non_fatal_first,
-				integer_division_accuracy_loss,
-				integer_root_accuracy_loss,
-				integer_log_accuracy_loss,
-				//insert more non fatal errors here
-				count
-				
+				decimal_to_integer_accuracy_loss = 0x40,
+				integer_division_accuracy_loss=0x80,
+				integer_root_accuracy_loss=0x100,
+				integer_log_accuracy_loss=0x200,
 			};
 		}
-		enum {total_error_count = nonfatal::count};
+		enum{last_error=0x200};
 	}
 
 	class BigFloat;
