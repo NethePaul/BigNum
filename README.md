@@ -16,6 +16,6 @@ a class that represents rational numbers
 - [X] addition and subtraction
 - [X] division and multiplication
 - [X] roots
-- [ ] logs
+- [X] logs
 - [X] power
 - [X] abs
