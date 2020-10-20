@@ -20,7 +20,7 @@ namespace BigNum {
 	public:
 		friend BigFloat pow(const BigFloat&x, const BigFloat&y, const BigInt&accuracy=1);//power x to the power of y
 		friend BigFloat root(const BigFloat&x,const BigFloat&y, const BigInt&accuracy=1);//root yth root of x
-		friend BigFloat log(const BigFloat&x, const BigFloat&y, const BigInt&accuracy=1);//logarithm log of x to the base of y	//undefined
+		friend BigFloat log(const BigFloat&x, const BigFloat&y, BigInt accuracy=1);//logarithm log of x to the base of y	//undefined
 		friend BigFloat abs(const BigFloat&x);					//absolute
 	public:
 		bool operator>	(const BigFloat&)const;

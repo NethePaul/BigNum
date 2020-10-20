@@ -9,14 +9,14 @@ int main() {
 	BigFloat b(81, 25);
 	char buffer[1024];
 	while (true) {
-		std::cout << "root of ";
+		std::cout << "log of ";
 		std::cin >> buffer; a = std::string(buffer);
 		std::cout << a.getFractionDec() << std::endl;
 		std::cout << "base: ";
 		std::cin >> buffer; b = std::string(buffer);
 		std::cout << b.getFractionDec() << std::endl;
-		a = root(a, b,1);
-		std::cout << a.getFractionDec() << std::endl;
+		a = log(a, b,2);
+		std::cout << a.getNumDec() << std::endl;
 	}
 	//report_error(var1);
 	system("pause");

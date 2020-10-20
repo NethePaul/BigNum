@@ -15,7 +15,11 @@ namespace BigNum {
 		return convertToFraction();
 	}
 	BigFloat&BigFloat::operator*=(const BigFloat&rhs) { numerator *= rhs.numerator; denominator *= rhs.denominator; convertToFraction(); return*this; }
-	BigFloat&BigFloat::operator/=(const BigFloat&rhs){ numerator *= rhs.denominator; denominator *= rhs.numerator; convertToFraction(); return*this; }
+	BigFloat&BigFloat::operator/=(const BigFloat&rhs){
+		numerator *= rhs.denominator;
+		denominator *= rhs.numerator;
+		convertToFraction(); 
+		return*this; }
 	BigFloat BigFloat::operator+(const BigFloat&rhs)const { auto a = *this; return a += rhs; }
 	BigFloat BigFloat::operator-(const BigFloat&rhs)const{ auto a = *this; return a -= rhs; }
 	BigFloat BigFloat::operator*(const BigFloat&rhs)const{ auto a = *this; return a *= rhs; }
@@ -76,6 +80,7 @@ namespace BigNum {
 	}
 
 	BigFloat&BigFloat::convertToFraction(){
+		if (denominator == 0)adderror(Error::fatal::division_by_zero);
 		auto gcd = GCD(numerator, denominator);
 		numerator /= gcd;
 		denominator /= gcd;
@@ -99,13 +104,39 @@ namespace BigNum {
 		else *this = buffer;
 		convertToFraction();
 	}
+#define auto_str(a,b)auto b##a = a.getNumDec()
+	BigFloat log(const BigFloat&x, const BigFloat&y,BigInt accuracy) {//approximating log
+		auto log_=[](const BigFloat&x, const BigFloat&y) {//iterative log
+			BigInt i = 0; auto buffer = y;
+			while (buffer < x) {
+				buffer *= y;
+				i++;
+				if (buffer == x)return i+1;
+			}
+			return i;
+		};
+		auto_str(x, s);
+		auto_str(y, s);
+		auto i_log = log_(x, y); auto_str(i_log,s);
+		auto remainder = x / pow(y,i_log); auto_str(remainder, s);
+		auto result = BigFloat(i_log); auto_str(result, s);
+		auto digit = y; auto_str(digit, s);
+		while (accuracy--) {
+			remainder = pow(remainder, y); auto_str(remainder, s2);
+			i_log = log_(remainder,y); auto_str(i_log, s2);
+			remainder /= pow(y, i_log); auto_str(remainder, s3);
+			result += BigFloat(i_log) / digit; auto_str(result, s2);
+			digit *= y; auto_str(digit, s2);
+		}
+		return result;
+	}
 
 	std::string BigFloat::getNumDec(unsigned long long max_decimals)const{
 		std::string num; BigInt number, x = numerator, y = denominator; x.clear_error(); y.clear_error();
-		number = x*pow(BigInt(10), BigInt(max_decimals, false)) / y;
+		number = x*pow(BigInt(10), BigInt(max_decimals, false)+1) / y;
 		num = number.getNumDec();
 		if (num[0] == '0')return num;
-		if (max_decimals<num.size())num.insert(num.end() - max_decimals, '.');
+		if (max_decimals<num.size())num.insert(num.end() - max_decimals-1, '.');
 		while (num.back() == '0')num.pop_back();//erase unneccessary 0s after dot
 		if (num.back() == '.')num.pop_back();//if nothing is written after the dot erase it to
 		return num;

@@ -322,7 +322,7 @@ namespace BigNum {
 	}
 	BigInt pow(const BigInt&x, const BigInt&y) {
 		auto buffer = x; auto X = x; X.clear_error();
-		auto buffery = y;
+		auto buffery = y-1;
 		if (y == 0)if (x == 0) { buffer = 1; buffer.adderror(Error::fatal::division_by_zero); return buffer; }else return 1;
 		if (x == -1)return y%-2;
 		if (x == 0 || x == 1)return x;
@@ -443,11 +443,11 @@ namespace BigNum {
 	}
 
 	BigInt BigInt::operator++(int) {
-		auto r = *this += 1;
+		auto r = *this;*this += 1;
 		return r;
 	}
 	BigInt BigInt::operator--(int) {
-		auto r = *this -= 1;
+		auto r = *this;*this -= 1;
 		return r;
 	}
 	BigInt&BigInt::operator++() {return*this += 1;}
