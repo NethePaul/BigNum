@@ -12,7 +12,7 @@ a class to represent numbers greater than most interger limits
 
 ## BigFloat
 a class that represents rational numbers
-- [ ] error detection
+- [X] error detection
 - [X] addition and subtraction
 - [X] division and multiplication
 - [X] roots
