@@ -33,22 +33,26 @@ namespace BigNum {
 		explicit operator bool() { return*this != 0; }
 	public:
 		void setZero() { *this = 0; };
-		void clear_error() { numerator.clear_error(); denominator.clear_error(); };
-		const auto&getErrors()const;//undefined
+		void clear_error() { errors = 0; };
+		bool getErrors(long long error)const { return errors&error; }
 		std::string getNumDec(unsigned long long max_decimals=10)const;//the parameter determines how many decimals after the dot should be outputed if needed
 		std::string getFractionDec()const;
 		std::string getFractionHex()const;
 
 		BigFloat(const BigInt&numerator = 1 , const BigInt&denominator = 1);
 		BigFloat(const BigFloat&)=default;
-		BigFloat(long long rhs) { *this = BigInt(rhs); }
+		BigFloat(signed long long rhs):errors(0) {
+			auto a = BigInt(rhs);
+			*this = a;
+		}
 		BigFloat(const std::string&);//enter number as decimal such as 5.6 or fraction such as 6/7 or as a combination of both such as 6.5/8 or 9/.3 if you enter a value like 7/6/3 it will be treated as (7/6)/3
 
 		BigFloat&convertToFraction();// 4/12 -> 1/3 or 5/25 -> 1/5 or 9/3 -> 3/1
 	public:
 		BigInt numerator;
 		BigInt denominator;
-
-
+	private:
+		long long errors;
+		void adderror(long long error) { errors |= error; }
 	};
 }

@@ -97,7 +97,7 @@ namespace BigNum {
 		return 'A' + in - 10;
 	}
 
-	BigInt::BigInt(signed long long rhs) :positiv(rhs > 0) {
+	BigInt::BigInt(signed long long rhs) :positiv(rhs > 0),errors(0) {
 		if (!positiv)rhs *= -1;
 
 		if (!rhs)goto jmp;
@@ -109,7 +109,7 @@ namespace BigNum {
 		positiv = 1;
 		value.push_back(0);
 	}
-	BigInt::BigInt(const std::string&rhs) {
+	BigInt::BigInt(const std::string&rhs): errors(0) {
 		setZero();
 		positiv = (rhs[0] != '-');
 		for (ltype i = !positiv; rhs[i]; i++) {
@@ -119,7 +119,7 @@ namespace BigNum {
 
 		}
 	}
-	BigInt::BigInt(ltype rhs, bool) :positiv(1) {
+	BigInt::BigInt(ltype rhs, bool) :positiv(1), errors(0) {
 		if (!rhs)goto jmp;
 		value.push_back(((type*)&rhs)[0]);
 		value.push_back(((type*)&rhs)[1]);
@@ -389,13 +389,14 @@ namespace BigNum {
 	}
 	BigInt&BigInt::operator*=(const BigInt&rhs) {
 		adderror( rhs.errors);
-		positiv = !(positiv^rhs.positiv);
-		return mul(rhs);
+		auto a = positiv;
+		mul(rhs);
+		positiv = !(a^rhs.positiv);
+		return*this;
 	}
 	BigInt&BigInt::operator/=(const BigInt&rhs) {
 		adderror( rhs.errors);
 		bool buffer = positiv;
-
 		div(rhs);
 		if (this[0] == 0)
 		{

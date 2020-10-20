@@ -26,18 +26,29 @@ namespace BigNum {
 	BigFloat&BigFloat::operator--() { return*this -= 1; }//decrement prefix
 
 	BigFloat pow(const BigFloat&x, const BigFloat&y, const BigInt&accuracy) {
-		BigFloat n(pow(x.numerator, y.numerator), pow(x.denominator, y.numerator));
+		BigFloat n;
+		if (y >= 0)
+			if (y != 0)
+				n = BigFloat(pow(x.numerator, y.numerator), pow(x.denominator, y.numerator));
+			else {
+				if (x != 0)
+					n = 1;
+				else n.adderror(Error::fatal::division_by_zero);
+				return n;
+			}
+		else
+			n = BigFloat(pow(x.denominator, abs(y.numerator)), pow(x.numerator, abs(y.numerator)));
 		if (y.denominator != 1)
-			return root(n, BigFloat(y.denominator, 1), accuracy);
+			return root(n, BigFloat(abs(y.denominator), 1), accuracy);
 		return n;
 	}
 	BigFloat root(const BigFloat&x,const BigFloat&y,const BigInt&accuracy) {
 		BigFloat A = y.denominator == 1 ? x : pow(x, BigFloat(y.denominator, 1));
 		const BigFloat n = y.numerator;
-		if (n == 0)return 1;
+		if (n == 0)if (x.numerator == 0) { BigFloat a; a.adderror(Error::fatal::invalid_root); return a; }else return 1;
 		if (x == 0)return 0;
 		if (x == 1)return 1;
-		if (x < 0 && n.numerator % 2)return 0;
+		if (x < 0 && n.numerator % 2) { BigFloat n; n.adderror(Error::fatal::root_of_negativ_number); return n; };
 		if (n == 1)return x;
 		if (x == -1)return -1;
 		BigFloat guess(root(x.numerator, y.numerator), root(x.denominator, y.numerator));
@@ -59,7 +70,6 @@ namespace BigNum {
 		}
 		return guess;
 	}
-
 	BigFloat::BigFloat(const BigInt&_numerator, const BigInt&_denominator) {
 		numerator = _numerator; denominator = _denominator;
 		convertToFraction();
@@ -95,7 +105,7 @@ namespace BigNum {
 		number = x*pow(BigInt(10), BigInt(max_decimals, false)) / y;
 		num = number.getNumDec();
 		if (num[0] == '0')return num;
-		if (max_decimals)num.insert(num.end() - max_decimals, '.');
+		if (max_decimals<num.size())num.insert(num.end() - max_decimals, '.');
 		while (num.back() == '0')num.pop_back();//erase unneccessary 0s after dot
 		if (num.back() == '.')num.pop_back();//if nothing is written after the dot erase it to
 		return num;

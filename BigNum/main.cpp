@@ -5,13 +5,18 @@ using namespace BigNum;
 using namespace std;
 void report_error(const BigInt&i);
 int main() {
-	BigFloat a(81, 25);//one hundred thirds
+	BigFloat a(81, 25);//81/25
+	BigFloat b(81, 25);
 	char buffer[1024];
 	while (true) {
+		std::cout << "root of ";
 		std::cin >> buffer; a = std::string(buffer);
 		std::cout << a.getFractionDec() << std::endl;
-		a = root(a, 4,20);//4th root of a with the 20th accuracy setting
-		std::cout << a.getNumDec() << std::endl;
+		std::cout << "base: ";
+		std::cin >> buffer; b = std::string(buffer);
+		std::cout << b.getFractionDec() << std::endl;
+		a = root(a, b,1);
+		std::cout << a.getFractionDec() << std::endl;
 	}
 	//report_error(var1);
 	system("pause");
