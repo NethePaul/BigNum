@@ -104,7 +104,6 @@ namespace BigNum {
 		else *this = buffer;
 		convertToFraction();
 	}
-#define auto_str(a,b)auto b##a = a.getNumDec()
 	BigFloat log(const BigFloat&x, const BigFloat&y,BigInt accuracy) {//approximating log
 		auto log_=[](const BigFloat&x, const BigFloat&y) {//iterative log
 			BigInt i = 0; auto buffer = y;
@@ -115,18 +114,16 @@ namespace BigNum {
 			}
 			return i;
 		};
-		auto_str(x, s);
-		auto_str(y, s);
-		auto i_log = log_(x, y); auto_str(i_log,s);
-		auto remainder = x / pow(y,i_log); auto_str(remainder, s);
-		auto result = BigFloat(i_log); auto_str(result, s);
-		auto digit = y; auto_str(digit, s);
+		auto i_log = log_(x, y);
+		auto remainder = x;
+		auto result = BigFloat(i_log);
+		auto digit = y;
 		while (accuracy--) {
-			remainder = pow(remainder, y); auto_str(remainder, s2);
-			i_log = log_(remainder,y); auto_str(i_log, s2);
-			remainder /= pow(y, i_log); auto_str(remainder, s3);
-			result += BigFloat(i_log) / digit; auto_str(result, s2);
-			digit *= y; auto_str(digit, s2);
+			remainder /= pow(y, i_log);
+			remainder = pow(remainder, y);
+			i_log = log_(remainder,y);
+			result += BigFloat(i_log) / digit;
+			digit *= y; 
 		}
 		return result;
 	}
